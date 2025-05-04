@@ -1,1 +1,4 @@
 license_plate_training_data/
+*.mp4
+*.zip
+*.pt
