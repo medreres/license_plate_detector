@@ -1,20 +1,9 @@
-from ultralytics import YOLO
 from datetime import datetime
 from tkinter import messagebox, simpledialog
-from config import (
-    LICENSE_PLATE_MODEL_PATH,
-    VEHICLE_MODEL_PATH,
-)
 from services.plate_detector import PlateDetector
 from services.pricing import ParkingPricing
 from database.db_manager import DatabaseManager
 from ui.parking_ui import ParkingUI
-
-# Load models at module level
-license_plate_detector = YOLO(LICENSE_PLATE_MODEL_PATH)
-vehicle_detector = YOLO(VEHICLE_MODEL_PATH)
-
-sample_dir = "/Users/medreres/Desktop/university/8_sem/diploma/assets"
 
 
 class ParkingSystem:
@@ -32,20 +21,12 @@ class ParkingSystem:
         entry_time = datetime.now()
         ticket_number = self.db.record_entry(plate_text, entry_time)
 
-        if not plate_text or plate_text.startswith("UNKNOWN_"):
-            messagebox.showinfo(
-                "Увага",
-                "Номер авто не розпізнано.\n"
-                "Талон видано без прив'язки до номера.\n"
-                "Будь ласка, зверніться до оператора для внесення номера.",
-            )
+        info_message = f"Номер талону: {ticket_number}\n"
+        if plate_text and not plate_text.startswith("UNKNOWN_"):
+            info_message = f"Номер авто: {plate_text}\n" + info_message
+        info_message += f"Час вʼїзду: {entry_time.strftime('%Y-%m-%d %H:%M:%S')}"
 
-        messagebox.showinfo(
-            "Вʼїзд",
-            f"{'Номер авто: ' + plate_text if plate_text and not plate_text.startswith('UNKNOWN_') else 'Номер авто: Не розпізнано'}\n"
-            f"Номер талону: {ticket_number}\n"
-            f"Час вʼїзду: {entry_time.strftime('%Y-%m-%d %H:%M:%S')}",
-        )
+        messagebox.showinfo("Вʼїзд", info_message)
         self.raise_barrier()
         return True
 
